@@ -20,7 +20,7 @@ class PosthogGroupIdentifyJob implements ShouldQueue
     use SerializesModels;
     use UsesPosthog;
 
-    public function __construct(private string $groupType, private string $groupKey, private array $properties = []) {}
+    public function __construct(private string $sessionId, private string $groupType, private string $groupKey, private array $properties = []) {}
 
     public function handle(): void
     {
@@ -28,11 +28,16 @@ class PosthogGroupIdentifyJob implements ShouldQueue
 
         try
         {
-            PostHog::groupIdentify([
-                'groupType' => $this->groupType,
-                'groupKey' => $this->groupKey,
-                'properties' => $this->properties,
+            Posthog::capture([
+                'distinctId' => $this->sessionId,
+                'event' => '$groupidentify',
+                'properties' => [
+                    '$group_type' => $this->groupType,
+                    '$group_key' => $this->groupKey,
+                    '$group_set' => $this->properties
+                ]
             ]);
+
         }
         catch (Exception $e)
         {

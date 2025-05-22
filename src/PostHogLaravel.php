@@ -58,7 +58,7 @@ class PostHogLaravel
 
         if ($this->posthogEnabled())
         {
-            PosthogGroupIdentifyJob::dispatch($this->groupType, $this->groupId, $properties);
+            PosthogGroupIdentifyJob::dispatch($this->sessionId, $this->groupType, $this->groupId, $properties);
         }
         else
         {
