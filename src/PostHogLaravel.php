@@ -17,20 +17,26 @@ class PostHogLaravel
 
     protected string $sessionId;
     protected string $groupType;
-    protected string $groupId;
+    protected ?string $groupId;
 
     public function __construct()
     {
-        $this->sessionId = Auth::user()
-            ? config('posthog.user_prefix', 'user').':'.Auth::user()->id
+        $user = Auth::user() ?? request()->user();
+
+        $this->sessionId = $user
+            ? config('posthog.user_prefix', 'user').':' . $user->id
             : sha1(session()->getId());
 
         $this->groupType = config('posthog.group_type', 'workspace');
+
+        $this->groupId = $user
+            ? $user->current_team_id
+            : null;
     }
 
     private function posthogEnabled(): bool
     {
-        if (! config('posthog.enabled') || config('posthog.key') === '') {
+        if (!config('posthog.enabled') || config('posthog.key') === '') {
             return false;
         }
 
@@ -48,9 +54,10 @@ class PostHogLaravel
 
     public function groupIdentify(string $groupKey, array $properties = []): void
     {
+        $this->groupId = $groupKey;
+
         if ($this->posthogEnabled())
         {
-            $this->groupId = $groupKey;
             PosthogGroupIdentifyJob::dispatch($this->groupType, $this->groupId, $properties);
         }
         else
@@ -62,7 +69,7 @@ class PostHogLaravel
     public function capture(string $event, array $properties = []): void
     {
         if ($this->posthogEnabled()) {
-            PosthogCaptureJob::dispatch($this->sessionId, $event, $properties);
+            PosthogCaptureJob::dispatch($this->sessionId, $event, $properties, $this->groupType, $this->groupId);
         } else {
             Log::debug('PosthogCaptureJob not dispatched because posthog is disabled');
         }

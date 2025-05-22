@@ -26,16 +26,28 @@ class PosthogCaptureJob implements ShouldQueue
     {
         $this->posthogInit();
 
-        try {
-            Posthog::capture([
-                'distinctId' => $this->sessionId,
-                'event' => $this->event,
-                'properties' => $this->properties,
-                'groupType' !== null && 'groupKey' !== null ? [
-                    '$groups' => array_filter([$this->groupType => $this->groupKey])
-                ] : []
-            ]);
-        } catch (Exception $e) {
+        try
+        {
+            if (is_null($this->groupType) || is_null($this->groupKey))
+            {
+                Posthog::capture([
+                    'distinctId' => $this->sessionId,
+                    'event' => $this->event,
+                    'properties' => $this->properties,
+                ]);
+            }
+            else
+            {
+                Posthog::capture([
+                    'distinctId' => $this->sessionId,
+                    'event' => $this->event,
+                    'properties' => $this->properties,
+                    '$groups' => array($this->groupType => $this->groupKey)
+                ]);
+            }
+        }
+        catch (Exception $e)
+        {
             Log::info('Posthog capture call failed:'.$e->getMessage());
         }
     }
