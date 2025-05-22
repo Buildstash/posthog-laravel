@@ -5,6 +5,7 @@ return [
     'host' => env('POSTHOG_HOST', 'https://app.posthog.com'),
     'key' => env('POSTHOG_KEY', ''),
     'user_prefix' => 'user',
+    'group_type' => 'workspace',
 
     'feature_flags' => [
         'default_enabled' => env('POSTHOG_FF_DEFAULT_ENABLED', false),

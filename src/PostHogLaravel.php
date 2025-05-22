@@ -1,26 +1,31 @@
 <?php
 
-namespace QodeNL\LaravelPosthog;
+namespace Buildstash\PostHogLaravel;
 
 use Auth;
 use Log;
 use PostHog\PostHog;
-use QodeNL\LaravelPosthog\Jobs\PosthogAliasJob;
-use QodeNL\LaravelPosthog\Jobs\PosthogCaptureJob;
-use QodeNL\LaravelPosthog\Jobs\PosthogIdentifyJob;
-use QodeNL\LaravelPosthog\Traits\UsesPosthog;
+use Buildstash\PostHogLaravel\Jobs\PosthogAliasJob;
+use Buildstash\PostHogLaravel\Jobs\PosthogCaptureJob;
+use Buildstash\PostHogLaravel\Jobs\PosthogGroupIdentifyJob;
+use Buildstash\PostHogLaravel\Jobs\PosthogIdentifyJob;
+use Buildstash\PostHogLaravel\Traits\UsesPosthog;
 
-class LaravelPosthog
+class PostHogLaravel
 {
     use UsesPosthog;
 
     protected string $sessionId;
+    protected string $groupType;
+    protected string $groupId;
 
     public function __construct()
     {
         $this->sessionId = Auth::user()
             ? config('posthog.user_prefix', 'user').':'.Auth::user()->id
             : sha1(session()->getId());
+
+        $this->groupType = config('posthog.group_type', 'workspace');
     }
 
     private function posthogEnabled(): bool
@@ -35,9 +40,22 @@ class LaravelPosthog
     public function identify(string $email, array $properties = []): void
     {
         if ($this->posthogEnabled()) {
-            PosthogIdentifyJob::dispatch($this->sessionId, $email, $properties);
+            PosthogIdentifyJob::dispatch($this->sessionId, $email, $properties, $this->groupType, $this->groupId);
         } else {
             Log::debug('PosthogIdentifyJob not dispatched because posthog is disabled');
+        }
+    }
+
+    public function groupIdentify(string $groupKey, array $properties = []): void
+    {
+        if ($this->posthogEnabled())
+        {
+            $this->groupId = $groupKey;
+            PosthogGroupIdentifyJob::dispatch($this->groupType, $this->groupId, $properties);
+        }
+        else
+        {
+            Log::debug('PosthogGroupIdentifyJob not dispatched because posthog is disabled');
         }
     }
 

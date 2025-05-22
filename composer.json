@@ -1,9 +1,9 @@
 {
-    "name": "qodenl/laravel-posthog",
+    "name": "buildstash/posthog-laravel",
     "description": "Laravel implementation for Posthog",
     "autoload": {
         "psr-4": {
-            "QodeNL\\LaravelPosthog\\": "src/"
+            "Buildstash\\PostHogLaravel\\": "src/"
         }
     },
     "license": "MIT",
@@ -11,6 +11,10 @@
         {
             "name": "Christian Schoenmakers",
             "email": "info@qode.io"
+        },
+        {
+          "name": "Buildstash",
+          "email": "hello@buildstash.com"
         }
     ],
     "keywords": [
@@ -41,10 +45,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "QodeNL\\LaravelPosthog\\PosthogServiceProvider"
+                "Buildstash\\PostHogLaravel\\PosthogServiceProvider"
             ],
             "aliases": {
-                "Posthog": "QodeNL\\LaravelPosthog\\Facades\\Posthog"
+                "PostHog": "Buildstash\\PostHogLaravel\\Facades\\PostHog"
             }
         }
     },

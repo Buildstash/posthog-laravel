@@ -1,6 +1,6 @@
 <?php
 
-namespace QodeNL\LaravelPosthog;
+namespace Buildstash\PostHogLaravel;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pennant\Feature;
@@ -9,8 +9,8 @@ class PosthogServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind('LaravelPosthog', function ($app) {
-            return new LaravelPosthog;
+        $this->app->bind('PostHogLaravel', function ($app) {
+            return new PostHogLaravel;
         });
     }
 

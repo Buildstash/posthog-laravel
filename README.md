@@ -16,13 +16,13 @@ This package uses the [PostHog / posthog-php](https://github.com/PostHog/posthog
 You can install the package via composer:
 
 ```bash
-composer require qodenl/laravel-posthog
+composer require buildstash/posthog-laravel
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --provider="QodeNL\LaravelPosthog\PosthogServiceProvider"  
+php artisan vendor:publish --provider="Buildstash\PostHogLaravel\PosthogServiceProvider"  
 ```
 
 After publishing the content, set your API key and Host in your .env file:
@@ -44,9 +44,9 @@ Make sure to disable Posthog for local/testing environments.
 ### Manual events
 
 ```php
-use QodeNL\LaravelPosthog\Facades\Posthog;
+use Buildstash\PostHogLaravel\Facades\PostHog;
 
-Posthog::capture('event name', ['property' => 'value']);
+PostHog::capture('event name', ['property' => 'value']);
 ```
 
 ### Automatic events 
@@ -71,12 +71,12 @@ Attributes in the `hidden` property will always be ignored.
 Events will be sent to Posthog with a unique ID for anonymous users. When the user is recognized (usually on log in), 
 you should trigger the `identify` method to link the unique ID to the user.
 
-You can pass additional information about the user to be stored in his profile. 
+You can pass additional information about the user to be stored in his profile.
 
 ```php
-use QodeNL\LaravelPosthog\Facades\Posthog;
+use Buildstash\PostHogLaravel\Facades\PostHog;
 
-Posthog::identify('email@user.com', ['first_name' => 'John', 'last_name' => 'Doe']);
+PostHog::identify('email@user.com', ['first_name' => 'John', 'last_name' => 'Doe']);
 ```
 
 ### Alias 
@@ -125,9 +125,9 @@ If you don't want to use Laravel Pennant, you can also implement the feature fla
 #### Get all feature flags
 
 ```php
-use QodeNL\LaravelPosthog\Facades\Posthog;
+use Buildstash\PostHogLaravel\Facades\PostHog;
 
-Posthog::getAllFlags();
+PostHog::getAllFlags();
 ```
 
 Get all feature flags with boolean if enabled for user or not.
@@ -135,9 +135,9 @@ Get all feature flags with boolean if enabled for user or not.
 #### Check if feature is enabled
 
 ```php
-use QodeNL\LaravelPosthog\Facades\Posthog;
+use Buildstash\PostHogLaravel\Facades\PostHog;
 
-Posthog::isFeatureEnabled('myFeatureFlagKey');
+PostHog::isFeatureEnabled('myFeatureFlagKey');
 ```
 
 Check if feature is enabled for user. Returns boolean.
@@ -145,9 +145,9 @@ Check if feature is enabled for user. Returns boolean.
 #### Get feature flag
 
 ```php
-use QodeNL\LaravelPosthog\Facades\Posthog;
+use Buildstash\PostHogLaravel\Facades\PostHog;
 
-Posthog::getFeatureFlag('myFeatureFlagKey');
+PostHog::getFeatureFlag('myFeatureFlagKey');
 ```
 
 Get feature flag. Returns `false` if feature is disabled. Returns `true` (or `payload` if set).  

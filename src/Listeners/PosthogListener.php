@@ -1,9 +1,9 @@
 <?php
 
-namespace QodeNL\LaravelPosthog\Listeners;
+namespace Buildstash\PostHogLaravel\Listeners;
 
 use Illuminate\Database\Eloquent\Model;
-use QodeNL\LaravelPosthog\LaravelPosthog;
+use Buildstash\PostHogLaravel\PostHogLaravel;
 use ReflectionClass;
 use ReflectionNamedType;
 
@@ -55,7 +55,7 @@ class PosthogListener
             }
         }
 
-        $posthog = new LaravelPosthog;
+        $posthog = new PostHogLaravel;
         $posthog->capture(
             get_class($event),
             $eventParameters

@@ -1,6 +1,6 @@
 <?php
 
-namespace QodeNL\LaravelPosthog\Extensions;
+namespace Buildstash\PostHogLaravel\Extensions;
 
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Pennant\Contracts\Driver;
 use Laravel\Pennant\Feature;
 use PostHog\PostHog;
-use QodeNL\LaravelPosthog\Exceptions\PosthogFeatureException;
-use QodeNL\LaravelPosthog\Traits\UsesPosthog;
+use Buildstash\PostHogLaravel\Exceptions\PosthogFeatureException;
+use Buildstash\PostHogLaravel\Traits\UsesPosthog;
 
 class PosthogFeatureDriver implements Driver
 {

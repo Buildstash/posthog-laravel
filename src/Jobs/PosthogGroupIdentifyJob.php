@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use PostHog\PostHog;
 use Buildstash\PostHogLaravel\Traits\UsesPosthog;
 
-class PosthogIdentifyJob implements ShouldQueue
+class PosthogGroupIdentifyJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -20,19 +20,23 @@ class PosthogIdentifyJob implements ShouldQueue
     use SerializesModels;
     use UsesPosthog;
 
-    public function __construct(private string $sessionId, private string $email, private array $properties = []) {}
+    public function __construct(private string $groupType, private string $groupKey, private array $properties = []) {}
 
     public function handle(): void
     {
         $this->posthogInit();
 
-        try {
-            Posthog::identify([
-                'distinctId' => $this->sessionId,
-                'properties' => ['email' => $this->email] + $this->properties,
+        try
+        {
+            PostHog::groupIdentify([
+                'groupType' => $this->groupType,
+                'groupKey' => $this->groupKey,
+                'properties' => $this->properties,
             ]);
-        } catch (Exception $e) {
-            Log::info('Posthog identify call failed:'.$e->getMessage());
+        }
+        catch (Exception $e)
+        {
+            Log::info('Posthog group identify call failed:'.$e->getMessage());
         }
     }
 }

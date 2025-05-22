@@ -1,6 +1,6 @@
 <?php
 
-namespace QodeNL\LaravelPosthog\Jobs;
+namespace Buildstash\PostHogLaravel\Jobs;
 
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use PostHog\PostHog;
-use QodeNL\LaravelPosthog\Traits\UsesPosthog;
+use Buildstash\PostHogLaravel\Traits\UsesPosthog;
 
 class PosthogCaptureJob implements ShouldQueue
 {
@@ -20,7 +20,7 @@ class PosthogCaptureJob implements ShouldQueue
     use SerializesModels;
     use UsesPosthog;
 
-    public function __construct(private string $sessionId, private string $event, private array $properties = []) {}
+    public function __construct(private string $sessionId, private string $event, private array $properties = [], private ?string $groupType = null, private ?string $groupKey = null) {}
 
     public function handle(): void
     {
@@ -31,6 +31,9 @@ class PosthogCaptureJob implements ShouldQueue
                 'distinctId' => $this->sessionId,
                 'event' => $this->event,
                 'properties' => $this->properties,
+                'groupType' !== null && 'groupKey' !== null ? [
+                    '$groups' => array_filter([$this->groupType => $this->groupKey])
+                ] : []
             ]);
         } catch (Exception $e) {
             Log::info('Posthog capture call failed:'.$e->getMessage());

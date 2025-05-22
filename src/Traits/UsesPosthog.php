@@ -1,6 +1,6 @@
 <?php
 
-namespace QodeNL\LaravelPosthog\Traits;
+namespace Buildstash\PostHogLaravel\Traits;
 
 use Exception;
 use Illuminate\Support\Facades\Log;

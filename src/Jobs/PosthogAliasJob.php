@@ -1,6 +1,6 @@
 <?php
 
-namespace QodeNL\LaravelPosthog\Jobs;
+namespace Buildstash\PostHogLaravel\Jobs;
 
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use PostHog\PostHog;
-use QodeNL\LaravelPosthog\Traits\UsesPosthog;
+use Buildstash\PostHogLaravel\Traits\UsesPosthog;
 
 class PosthogAliasJob implements ShouldQueue
 {

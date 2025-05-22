@@ -1,6 +1,6 @@
 <?php
 
-namespace QodeNL\LaravelPosthog\Exceptions;
+namespace Buildstash\PostHogLaravel\Exceptions;
 
 use Exception;
 
