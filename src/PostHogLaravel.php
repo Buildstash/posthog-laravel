@@ -29,8 +29,8 @@ class PostHogLaravel
 
         $this->groupType = config('posthog.group_type', 'workspace');
 
-        $this->groupId = $user
-            ? $user->current_team_id
+        $this->groupId = $user && $user->workspace
+            ? $user->workspace->sqid
             : null;
     }
 
@@ -110,7 +110,9 @@ class PostHogLaravel
             return Posthog::getFeatureFlag(
                 $featureKey,
                 $this->sessionId,
-                $groups,
+                array_merge($groups, [
+                    $this->groupType => $this->groupId
+                ]),
                 $personProperties,
                 $groupProperties,
                 config('posthog.feature_flags.evaluate_locally') ?? false,
