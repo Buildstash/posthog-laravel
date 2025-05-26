@@ -17,11 +17,11 @@ class PostHogLaravel
 
     protected string $sessionId;
     protected string $groupType;
-    protected ?string $groupId;
+    protected ?string $groupId = null;
 
     public function __construct()
     {
-        $user = Auth::user() ?? request()->user();
+        $user = request()->user() ?? Auth::user();
 
         $this->sessionId = $user
             ? config('posthog.user_prefix', 'user').':' . $user->id
@@ -29,7 +29,7 @@ class PostHogLaravel
 
         $this->groupType = config('posthog.group_type', 'workspace');
 
-        $this->groupId = $user && $user->workspace
+        $this->groupId = $user && $user->workspace && $user->workspace->sqid
             ? $user->workspace->sqid
             : null;
     }
