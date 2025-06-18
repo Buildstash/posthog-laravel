@@ -29,8 +29,8 @@ class PostHogLaravel
 
         $this->groupType = config('posthog.group_type', 'workspace');
 
-        $this->groupId = $user && $user->workspace && $user->workspace->sqid
-            ? $user->workspace->sqid
+        $this->groupId = $user && $user->getAttribute('workspace') && $user->getAttribute('workspace')->sqid !== null
+            ? $user->getAttribute('workspace')->sqid
             : null;
     }
 
