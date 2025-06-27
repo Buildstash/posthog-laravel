@@ -110,10 +110,14 @@ class PostHogLaravel
         $cachedData = cache()->get('posthog_flags_cached');
         $evaluateLocally = config('posthog.feature_flags.evaluate_locally') ?? false;
 
+        // Ensure cached data is an array
+        $cachedData = is_array($cachedData) ? $cachedData : null;
+
         if ($cachedData === null)
         {
             $this->refreshFlags();
             $cachedData = cache()->get('posthog_flags_cached');
+            $cachedData = is_array($cachedData) ? $cachedData : null;
         }
 
         if ($this->posthogEnabled())
@@ -145,10 +149,14 @@ class PostHogLaravel
         $cachedData = cache()->get('posthog_flags_cached');
         $evaluateLocally = config('posthog.feature_flags.evaluate_locally') ?? false;
 
+        // Ensure cached data is an array
+        $cachedData = is_array($cachedData) ? $cachedData : null;
+
         if ($cachedData === null)
         {
             $this->refreshFlags();
             $cachedData = cache()->get('posthog_flags_cached');
+            $cachedData = is_array($cachedData) ? $cachedData : null;
         }
 
         if ($this->posthogEnabled()) {
