@@ -14,7 +14,8 @@ trait UsesPosthog
             PostHog::init(config('posthog.key'),
                 ['host' => config('posthog.host')],
                 null,
-                config('posthog.secure_api_key')
+                config('posthog.secure_api_key'),
+                config('posthog.feature_flags.evaluate_locally'),
             );
         } catch (Exception $e) {
             Log::error('Posthog initialization failed: '.$e->getMessage());
