@@ -33,12 +33,6 @@ class PostHogLaravel
         $this->groupId = $user && $user->getAttribute('workspace') && $user->getAttribute('workspace')->sqid !== null
             ? $user->getAttribute('workspace')->sqid
             : null;
-
-        // Check if flag definitions are cached
-        if (!cache()->has('posthog_flags_cached'))
-        {
-            $this->refreshFlags(); // First-time load
-        }
     }
 
     private function posthogEnabled(): bool
@@ -111,7 +105,19 @@ class PostHogLaravel
         array $personProperties = [],
         array $groupProperties = [],
     ): null|bool|string {
-        if ($this->posthogEnabled()) {
+
+        // If feature flags are not cached, cache them now
+        $cachedData = cache()->get('posthog_flags_cached');
+        $evaluateLocally = config('posthog.feature_flags.evaluate_locally') ?? false;
+
+        if ($cachedData === null)
+        {
+            $this->refreshFlags();
+            $cachedData = cache()->get('posthog_flags_cached');
+        }
+
+        if ($this->posthogEnabled())
+        {
             $this->posthogInit();
 
             return PostHog::getFeatureFlag(
@@ -122,7 +128,7 @@ class PostHogLaravel
                 ]),
                 $personProperties,
                 $groupProperties,
-                config('posthog.feature_flags.evaluate_locally') ?? false,
+                $evaluateLocally ? $cachedData : null,
                 config('posthog.feature_flags.send_events') ?? true,
             );
         }
@@ -135,6 +141,16 @@ class PostHogLaravel
         array $personProperties = [],
         array $groupProperties = [],
     ): array {
+        // If feature flags are not cached, cache them now
+        $cachedData = cache()->get('posthog_flags_cached');
+        $evaluateLocally = config('posthog.feature_flags.evaluate_locally') ?? false;
+
+        if ($cachedData === null)
+        {
+            $this->refreshFlags();
+            $cachedData = cache()->get('posthog_flags_cached');
+        }
+
         if ($this->posthogEnabled()) {
             $this->posthogInit();
 
@@ -143,7 +159,8 @@ class PostHogLaravel
                 $groups,
                 $personProperties,
                 $groupProperties,
-                config('posthog.feature_flags.evaluate_locally') ?? false
+                $evaluateLocally,
+                $cachedData,
             );
         }
 
@@ -154,16 +171,27 @@ class PostHogLaravel
     {
         // Don't do anything if PostHog is disabled
         if (!$this->posthogEnabled())
-            Log::debug('PostHog flags were not refresh as it is disabled');
+            Log::debug('PostHog flags were not refreshed as it is disabled');
+
+        // Check if we can retrieve PostHog feature flag definitions from cache
+        if (cache()->has('posthog_flags_cached'))
+        {
+            // Since their cached we can query the cache directly, and don't need to request from PostHog API
+            return;
+        }
 
         // Ensure PostHog is initialized
         $this->posthogInit();
 
         // Reload PostHog feature flag definitions
         // NOTE: Despite PostHog::loadFlags() being documented, it doesn't actually exist. This currently relies on a forked version of PostHog PHP SDK!
-        PostHog::loadFlags();
+        $flagsRequestPayload = PostHog::loadFlags();
 
-        // Cache for 30 seconds
-        cache()->put('posthog_flags_cached', now()->toDateTimeString(), now()->addSeconds(30)->toDateTimeString());
+        // Store feature flag definitions in cache (Cache for 30 seconds)
+        cache()->put('posthog_flags_cached', [
+            'flags' => $flagsRequestPayload['flags'],
+            'group_type_mapping' => $flagsRequestPayload['group_type_mapping'],
+            'cohorts' => $flagsRequestPayload['cohorts']
+        ], now()->addSeconds(30));
     }
 }
