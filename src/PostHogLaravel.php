@@ -4,6 +4,7 @@ namespace Buildstash\PostHogLaravel;
 
 use Auth;
 use Log;
+use PostHog\Client as PostHogClient;
 use PostHog\PostHog;
 use Buildstash\PostHogLaravel\Jobs\PosthogAliasJob;
 use Buildstash\PostHogLaravel\Jobs\PosthogCaptureJob;
@@ -32,6 +33,12 @@ class PostHogLaravel
         $this->groupId = $user && $user->getAttribute('workspace') && $user->getAttribute('workspace')->sqid !== null
             ? $user->getAttribute('workspace')->sqid
             : null;
+
+        // Check if flag definitions are cached
+        if (!cache()->has('posthog_flags_cached'))
+        {
+            $this->refreshFlags(); // First-time load
+        }
     }
 
     private function posthogEnabled(): bool
@@ -107,7 +114,7 @@ class PostHogLaravel
         if ($this->posthogEnabled()) {
             $this->posthogInit();
 
-            return Posthog::getFeatureFlag(
+            return PostHog::getFeatureFlag(
                 $featureKey,
                 $this->sessionId,
                 array_merge($groups, [
@@ -141,5 +148,22 @@ class PostHogLaravel
         }
 
         return [];
+    }
+
+    public function refreshFlags(): void
+    {
+        // Don't do anything if PostHog is disabled
+        if (!$this->posthogEnabled())
+            Log::debug('PostHog flags were not refresh as it is disabled');
+
+        // Ensure PostHog is initialized
+        $this->posthogInit();
+
+        // Reload PostHog feature flag definitions
+        // NOTE: Despite PostHog::loadFlags() being documented, it doesn't actually exist. This currently relies on a forked version of PostHog PHP SDK!
+        PostHog::loadFlags();
+
+        // Cache for 30 seconds
+        cache()->put('posthog_flags_cached', now()->toDateTimeString(), now()->addSeconds(30)->toDateTimeString());
     }
 }

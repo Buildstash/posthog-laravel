@@ -26,10 +26,16 @@
         "events",
         "product analytics"
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:Buildstash/posthog-php.git"
+        }
+    ],
     "require": {
         "php": "^8.0",
         "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
-        "posthog/posthog-php": "^3.0",
+        "buildstash/posthog-php": "dev-master",
         "laravel/pennant": "^1.12"
     },
     "require-dev": {

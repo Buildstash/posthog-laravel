@@ -4,6 +4,7 @@ return [
     'enabled' => env('POSTHOG_ENABLED', true),
     'host' => env('POSTHOG_HOST', 'https://app.posthog.com'),
     'key' => env('POSTHOG_KEY', ''),
+    'secure_api_key' => env('POSTHOG_FF_SECURE_KEY', ''),
     'user_prefix' => 'user',
     'group_type' => 'workspace',
 
